@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Nasladdin</title>
+        <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <link rel='stylesheet' href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    </head>
+    <style>
+        html{width:100%;height:100%;}
+        body{font-family:'Roboto',Times,serif;overflow-x: hidden;}
+        input{margin-bottom:3px;margin-top:0px;}
+        label{padding:5px 10px 5px 10px; margin-bottom:0; margin-left:3px;margin-right:3px;font-size:18pt;align-items:center;justify-content:center;height:50%;display:flex;}
+        *{box-sizing:border-box;}
+        .clear{clear:both;}
+        .right{text-align:right;}
+        .left{text-align:left;}
+        .row{margin-right:-5px;margin-left:-5px;}
+        .row:before,.row:after{display:table;content:' ';}
+        .row:after{clear: both;}
+        .col-xs-1,.col-xs-2,.col-xs-4,.col-xs-6,.col-xs-7,.col-xs-8,.col-xs-9,.col-xs-10,.col-xs-11,.col-xs-12{position:relative;min-height:1px;padding-bottom:5px;padding-top:5px;padding-right:10px;padding-left:10px;float:left;align-items:center;}
+        .border{border:1px solid #1b9c1a;border-radius:3px;}
+    </style>
+    <body>
+        <div class='col-xs-12'>
+            <div id='esion_container' class='border col-xs-12'>
+                <div class='row col-xs-12'>
+                    <div id='esion_label' class='col-xs-10'>
+                        <h2 style='color: green;'>Драйвер мотора</h2>
+                    </div>
+                    <div id='esion_version' class='col-xs-2' style='text-align: right;'>
+                        <h3>V 1.0</h3>
+                    </div>
+                </div>
+                <div id='devices_list_container'class='col-xs-12' >
+                    <div class='border col-xs-12'>
+                        <div class='col-xs-12'>
+                        </div>
+                        <div class='row col-xs-12'>
+                            <!-- <div class='row col-xs-3'></div> -->
+                            <!-- <div class='row col-xs-3'><label id='id_step' >0</label></div> -->
+                            <div class='row col-xs-9 vcenter style='text-align: right;'>
+                                <input id='send_timeout' class='col-xs-12' type='number' value='3'>
+                            </div>
+                            <div class='row col-xs-6'>
+                                <div class='btn-group-justified'>
+                                    <div class='btn-group'>
+                                      <button id='btn_backward' type='button' class='btn btn-success'><<< BACKWARD</button>
+                                    </div>
+                                    <div class='btn-group'></div>
+                                    <div class='btn-group'>
+                                      <button id='btn_forward' type='button' class="btn btn-primary">FORWARD >>></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='row col-xs-3'><label id='id_pos_num'>0</label></div>
+                        </div>
+                    </div>
+                </div>
+                <div class='row col-xs-12'>
+                    <div class='row col-xs-2 vcenter'>
+                        <h2 style='color: green;'>status:</h2>
+                    </div>
+                    <div class='row col-xs-10 vcenter'>
+                        <h2 id='status' style='color: green;'>init</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            console.info("Start page");
+            var is_forward = false;
+            var is_backward = false;
+            var num = 0;
+            document.getElementById('btn_forward').onmousedown = function() {
+                is_forward = true;
+                is_backward = false;
+                console.log('Forw DOWN');
+            }
+            document.getElementById('btn_forward').onmouseup = function() {
+                is_forward = false;
+                console.log('Forw UP');
+            }
+            document.getElementById('btn_backward').onmousedown = function() {
+                is_forward = false;
+                is_backward = true;
+                console.log('Back DOWN');
+            }
+            document.getElementById('btn_backward').onmouseup = function() {
+                is_backward = false;
+                console.log('Back UP');
+            }
+            var timer = setInterval(function() {
+                if (is_forward) {
+                    var xhr = new XMLHttpRequest();
+                    var url = window.location.origin;
+                    xhr.open('GET', url + '/forward', true);
+                    xhr.onload = function() {
+                        var js = JSON.parse(this.response);
+                        console.log(JSON.stringify(js));
+                        var status = document.getElementById('status');
+                        if (typeof js["status"] !== 'undefined') {
+                            status.innerHTML = js.status;
+                        } else {
+                            status.innerHTML = "ERROR";
+                        }
+                    };
+                    xhr.send();
+                    document.getElementById('id_pos_num').innerHTML = ++num;
+                };
+                if (is_backward) {
+                    var xhr = new XMLHttpRequest();
+                    var url = window.location.origin;
+                    xhr.open('GET', url + '/backward', true);
+                    xhr.onload = function() {
+                        var js = JSON.parse(this.response);
+                        console.log(JSON.stringify(js));
+                        var status = document.getElementById('status');
+                        if (typeof js["status"] !== 'undefined') {
+                            status.innerHTML = js.status;
+                        } else {
+                            status.innerHTML = "ERROR";
+                        }
+                    };
+                    xhr.send();
+                    document.getElementById('id_pos_num').innerHTML = --num;
+                };
+            }, 500);
+        });
+    </script>
+</html>
